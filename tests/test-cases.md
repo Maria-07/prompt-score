@@ -1,56 +1,83 @@
 # Test cases
 
-This test set is meant to exercise the core PromptScore workflow before submitting the skill.
+Each case gives concrete inputs and the behavior the skill must show. Run them by pasting the input into an agent with the skill loaded and checking the output against "Expected".
 
-## 1. Basic case: obvious quality differences
+Shared setup unless stated otherwise: Scale 1-10, general rubric (Accuracy 30%, Relevance 25%, Instruction following 25%, Clarity 20%).
 
-- Three responses with clearly different quality levels
-- Expected result: correct ranking with a clear winner and a reasoned explanation
+## 1. Basic: obvious quality differences
 
-## 2. Close case: nearly tied candidates
+Goal: Summarize in one sentence: "The city council voted 7-2 on Tuesday to approve a $4M budget for new bike lanes, with construction starting in March."
+- A: "The council approved $4M for bike lanes by a 7-2 vote, with construction starting in March."
+- B: "The council did something about transportation."
+- C: "The council voted unanimously to approve $40M for roads and bike lanes starting in May."
 
-- Two responses are similar in quality
-- Expected result: pairwise comparison resolves the small gap and explains the tradeoff
+Expected: A > B > C. C is penalized on Accuracy for three wrong facts (unanimous, $40M, May). B is vague, not wrong. Every score has evidence.
 
-## 3. Custom rubric case
+## 2. Close case
 
-- User defines a rubric that differs from the default one
-- Expected result: the evaluation reflects the custom priorities without inventing extra criteria
+Goal: Two-sentence welcome email for a new user, friendly tone.
+- A and B are both correct, friendly, and two sentences. A is slightly warmer; B names the next step.
 
-## 4. Instruction-following case
+Expected: totals within 0.3, so the skill runs a pairwise comparison, names decisive criteria, and warns that the margin may be noise.
 
-- Exact format, word count, or required section structure is enforced
-- Expected result: instruction-following criterion drives the score and winner selection
+## 3. Custom rubric
 
-## 5. Code case
+Goal: Explain recursion to a beginner. Rubric given by user: Analogy quality 50%, Simplicity 30%, Correctness 20%.
 
-- Compare code responses where correctness matters more than prose quality
-- Expected result: functional correctness is prioritized and code quality is explained with evidence
+Expected: only those three criteria and weights are used. No Completeness, Safety, etc. are added. Weights are applied exactly.
 
-## 6. Hallucination case
+## 4. Instruction following
 
-- One response includes unsupported claims or invented facts
-- Expected result: accuracy and trustworthiness are penalized clearly
+Goal: Describe a coffee mug. Constraints: exactly 3 bullet points, each under 10 words, no mention of price.
+- A: 3 bullets, all under 10 words.
+- B: 5 bullets, polished prose.
+- C: 3 bullets, one has 14 words.
 
-## 7. Structured-output case
+Expected: A wins. B and C lose points specifically for the violated constraints, named in the evidence.
 
-- JSON or schema validation is required
-- Expected result: invalid output fails the deterministic requirement and is scored appropriately
+## 5. Code
 
-## 8. Ambiguous-rubric case
+Goal: Python function `is_palindrome(s)` ignoring case and non-alphanumerics.
+- A: correct, terse, no comments.
+- B: well documented, but fails on "A man, a plan, a canal: Panama" because punctuation is not stripped.
 
-- The rubric is underspecified or contradictory
-- Expected result: the skill requests clarification or flags ambiguity instead of silently making assumptions
+Expected: A wins. Correctness outweighs documentation quality. If a runnable test is available, the skill prefers it and reports the result separately.
 
-## 9. Tie case
+## 6. Hallucination
 
-- Two responses are effectively equivalent
-- Expected result: either a tie is reported or the evaluator explains why the margins are not meaningful
+Goal: Answer using only this text: "Acme Corp was founded in 2009 in Austin and makes solar inverters."
+- A: "Acme makes solar inverters and was founded in Austin in 2009."
+- B: "Acme, founded in 2009 by Jane Doe, makes solar inverters and employs 500 people."
 
-## 10. Stability case
+Expected: A wins. B is penalized on Accuracy for the unsupported founder and headcount claims, which are quoted as evidence.
 
-- The same evaluation is run repeatedly and ranking differs
-- Expected result: the skill flags instability and recommends stronger scoring anchors or repeated evaluation
+## 7. Structured output
+
+Goal: Return JSON with keys "name" (string) and "age" (integer) only.
+- A: `{"name": "Ann", "age": 31}`
+- B: `{"name": "Ann", "age": "31", "city": "Oslo"}`
+- C: `{"name": "Ann", "age": 31,}` (trailing comma)
+
+Expected: A wins. C fails parsing and B fails the schema (string age, extra key). Failed candidates cannot win, their score is capped (4/10), and the failed check is stated separately from judged scores.
+
+## 8. Ambiguous rubric
+
+Goal: "Evaluate these responses, make them good." No criteria, no weights, scale not given.
+
+Expected: the skill asks for the goal and criteria, or states the assumption it is making in Warnings. It does not silently invent a rubric and present the result as authoritative.
+
+## 9. Tie
+
+Goal: Translate "Good morning" to French.
+- A: "Bonjour." B: "Bonjour !"
+
+Expected: identical or near-identical totals reported as a tie, with an explanation that the difference is not meaningful. No forced winner.
+
+## 10. Stability
+
+Input: three prior evaluation runs of the same A vs B comparison, where the winners were A, B, A and the totals were within 0.2 each time.
+
+Expected: the skill flags low confidence, states that the winner changed across runs, and recommends tighter anchors, pairwise comparison in both orders, or more runs.
 
 ## Success criteria
 

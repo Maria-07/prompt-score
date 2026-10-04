@@ -30,11 +30,13 @@ Candidate B total: 8.8/10
 Pairwise result: Candidate B is better for this goal.
 Reason: Candidate B is more concise and still covers the key recommendations. Candidate A includes useful detail, but it is more verbose than necessary for the brief.
 
+The 0.1 gap is within noise (threshold: 0.3), so the totals alone do not decide.
+
 Decisive criteria:
-- Conciseness: Candidate B wins
-- Clarity: Candidate B wins
-- Relevance: Candidate B wins
-- Accuracy: tied
+- Conciseness (15%): Candidate B wins clearly
+- Clarity (20%): Candidate B wins slightly
+- Accuracy (30%): Candidate A wins slightly (more detail)
+- Relevance (25%): tied
 
 Recommendation: Use Candidate B as the baseline and add a small amount of detail if the user asks for more depth.
 ```

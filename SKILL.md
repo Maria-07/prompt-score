@@ -1,13 +1,13 @@
 ---
-name: promptscore
+name: prompt-score
 description: Evaluate and rank prompt/response pairs with configurable rubrics, weighted scoring, evidence-based explanations, and winner selection for AI engineering workflows.
 ---
 
-# PromptScore
+# prompt-score
 
 ## When to use this skill
 
-Use PromptScore when you need to:
+Use prompt-score when you need to:
 
 - compare several prompt variants against the same goal
 - evaluate model responses consistently across repeated experiments
@@ -17,7 +17,7 @@ Use PromptScore when you need to:
 
 Use it for tasks such as product descriptions, customer support replies, summarization, classification, code generation, structured-output validation, and instruction-following tasks.
 
-Do not use PromptScore when:
+Do not use prompt-score when:
 
 - there are no prompt/response pairs to compare
 - the task requires a deterministic validator rather than a rubric-based judge
@@ -59,10 +59,10 @@ Choose the rubric based on task type.
 ### Code-oriented rubric
 - Correctness
 - Requirement coverage
-- Security and safety
+- Security
 - Maintainability
-- Readability
 - Efficiency
+- Error handling
 
 ### Support/communication rubric
 - Accuracy
@@ -79,7 +79,9 @@ Keep criteria independent where possible. Avoid double-counting the same quality
 Use a normalized 0-10 or 0-100 scale.
 
 - Default score range: 1-10
-- Weighted overall score = sum of criterion score × criterion weight
+- Weighted overall score = sum of criterion score × criterion weight (e.g. 9×0.25 + 9×0.20 + 10×0.20 + 9×0.15 + 9×0.20 = 9.2)
+- Converting scales: multiply a 1-10 score by 10 to get 0-100 (and divide by 10 for the reverse); never mix scales within one evaluation
+- Round totals to one decimal place on 1-10 (whole numbers on 0-100)
 - Weights should total 100%
 - Prefer clear and honest precision: 8.7/10 is acceptable; avoid false precision when the rubric is coarse
 - Every score must include a brief justification based on evidence in the response
@@ -148,22 +150,30 @@ Recommendations: <specific prompt improvements>
 Warnings: <uncertainty, stability, or missing criteria if any>
 ```
 
+## Special cases
+
+- **Ambiguous or missing rubric:** if the goal is vague, criteria contradict each other, or weights do not sum to 100%, ask the user to clarify, or state the assumption you are making in Warnings. Never silently invent criteria.
+- **Deterministic check fails** (invalid JSON, schema violation, failing tests, broken regex or length constraint): the candidate cannot win. Cap its Instruction following / Correctness score at 4 (1-10) or 40 (0-100) and say which check failed. Report the check result separately from judged scores.
+- **Ties:** if two totals differ by 0.3 or less on 1-10 (3 or less on 0-100), treat the gap as within noise. Run a pairwise comparison; if that does not separate them either, report a tie and say what would break it.
+- **Single candidate:** score it against the rubric, but do not produce a ranking or winner.
+- **Missing responses or prompts:** score only what was supplied and list what was missing.
+
 ## Pairwise comparison
 
 Use pairwise comparison when:
 
-- total scores are close enough that the rank order is not decisive
+- total scores are within 0.3 on a 1-10 scale (3 on 0-100)
 - two responses are qualitatively different but numerically similar
 - the user asks: “Which is better, A or B?”
 
-Pairwise assessment should answer which response better satisfies the goal and why.
+Pairwise assessment should answer which response better satisfies the goal and why. Name the decisive criteria, weigh them by the rubric weights, and use the result as a tie-breaker rather than a replacement for the rubric. Judge each pair in both orders (A vs B, then B vs A) when possible to reduce position bias.
 
 ## Stability and uncertainty
 
 Flag these cases explicitly:
 
 - criteria are vague or underspecified
-- repeated runs produce different winners
+- repeated runs produce different winners (compare runs only when the user provides several evaluations, or asks you to re-evaluate)
 - the score spread is narrow and could be noise
 - evidence is insufficient to justify a high score
 - the task is subjective and sensitive to judgment style
@@ -200,7 +210,7 @@ Goal: Generate a professional product description.
 Scale: 1-10
 Rubric: Accuracy 25%, Relevance 20%, Instruction following 20%, Clarity 15%, Tone 20%
 
-Prompt B — 9.1/10 (Winner)
+Prompt B — 9.2/10 (Winner)
 - Accuracy: 9/10 — correctly describes product features without unsupported claims
 - Relevance: 9/10 — stays tightly focused on the requested product
 - Instruction following: 10/10 — follows required structure and tone
@@ -224,4 +234,4 @@ Load these when you need more detail:
 
 ## Final recommendation
 
-PromptScore should be lightweight, transparent, and reusable. The skill succeeds when it helps people compare candidate responses consistently, justify the ranking, and improve prompts based on explicit evidence instead of intuition.
+prompt-score should be lightweight, transparent, and reusable. The skill succeeds when it helps people compare candidate responses consistently, justify the ranking, and improve prompts based on explicit evidence instead of intuition.

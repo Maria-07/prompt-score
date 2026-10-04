@@ -26,6 +26,8 @@ Use this when evaluating code or technical outputs.
 - Efficiency: Is it reasonably optimized for the stated constraints?
 - Error handling: Are edge cases addressed when relevant?
 
+Readability can be folded into Maintainability to avoid double-counting.
+
 ## Communication task rubric
 
 Use this when evaluating writing, support content, or conversational responses.

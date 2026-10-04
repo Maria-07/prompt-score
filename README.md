@@ -1,12 +1,12 @@
-# PromptScore
+# prompt-score
 
-PromptScore is a reusable Agent Skill for evaluating and ranking AI prompt/response pairs using explicit criteria, weighted scoring, evidence-based justifications, and winner selection.
+prompt-score is a reusable Agent Skill for evaluating and ranking AI prompt/response pairs using explicit criteria, weighted scoring, evidence-based justifications, and winner selection.
 
 Tagline: Measure prompts. Compare responses. Find the winner.
 
 ## Why this skill exists
 
-AI engineers often compare multiple prompt versions manually. That leads to inconsistent evaluations, subjective judgment, and repeated configuration overhead. PromptScore gives the workflow a simple, reusable structure:
+AI engineers often compare multiple prompt versions manually. That leads to inconsistent evaluations, subjective judgment, and repeated configuration overhead. prompt-score gives the workflow a simple, reusable structure:
 
 - define a task goal
 - choose a rubric
@@ -17,17 +17,16 @@ AI engineers often compare multiple prompt versions manually. That leads to inco
 
 ## What the skill does
 
-PromptScore can:
-
-- evaluate multiple prompt/response pairs
-- support built-in or custom evaluation criteria
-- score on a 1-10 or 0-100 scale
-- apply weighted criteria
-- provide criterion-level explanations
-- rank candidates by total score
-- identify a winner and justify it
-- suggest prompt improvements
-- flag unstable or ambiguous evaluations
+- evaluates multiple prompt/response pairs
+- supports built-in or custom evaluation criteria
+- scores on a 1-10 or 0-100 scale
+- applies weighted criteria
+- provides criterion-level explanations with evidence
+- ranks candidates and identifies a winner
+- uses pairwise comparison when scores are close
+- handles ties, failed deterministic checks, and ambiguous rubrics explicitly
+- suggests prompt improvements
+- flags uncertainty and unstable evaluations
 
 ## Installation
 
@@ -35,37 +34,15 @@ Clone the repository into your agent's skills directory. For Claude Code:
 
 ```bash
 # Personal (available in all projects)
-git clone https://github.com/Maria-07/promptscore.git ~/.claude/skills/promptscore
+git clone https://github.com/Maria-07/prompt-score.git ~/.claude/skills/prompt-score
 
 # Or project-level (shared with your team via the repo)
-git clone https://github.com/Maria-07/promptscore.git .claude/skills/promptscore
+git clone https://github.com/Maria-07/prompt-score.git .claude/skills/prompt-score
 ```
 
-The skill loads automatically when you ask the agent to compare, score, or rank prompt/response pairs.
+The skill loads when you ask the agent to compare, score, or rank prompt/response pairs.
 
-## Repository structure
-
-```text
-promptscore/
-├── SKILL.md                     # Skill definition (entry point)
-├── README.md
-├── LICENSE
-├── references/
-│   ├── evaluation-rubrics.md    # Rubrics per task type
-│   ├── scoring-methodology.md   # Weighting, anchors, aggregation
-│   └── judge-guidelines.md      # Evaluator behavior rules
-├── examples/
-│   ├── basic-evaluation.md
-│   ├── pairwise-comparison.md
-│   └── custom-rubric.md
-└── tests/
-    ├── test-cases.md
-    └── expected-behavior.md
-```
-
-## Quick usage concept
-
-Use this skill with a structured input like:
+## Quick usage
 
 ```text
 Goal: Generate a professional product description.
@@ -78,26 +55,27 @@ Scale: 1-10
 Weights: Accuracy 25%, Relevance 20%, Instruction following 20%, Clarity 15%, Tone 20%
 ```
 
-The skill then returns:
+The skill returns criterion-level scores with evidence, weighted totals, a ranking, the winner and why it won, weaknesses, and concrete prompt improvements. See [examples/](examples/) for full worked outputs.
 
-- criterion-level scores
-- weighted totals
-- ranked candidates
-- winner explanation
-- improvement recommendations
+## Repository structure
 
-## Project scope
-
-This MVP stays focused on:
-
-- multiple prompt-response comparisons
-- built-in and custom rubrics
-- weighted scoring
-- evidence-based explanations
-- ranking and winner selection
-- prompt improvement suggestions
-
-Future enhancements can include pairwise comparison, repeated-run stability analysis, and automated prompt optimization loops.
+```text
+prompt-score/
+├── SKILL.md                     # Skill definition (entry point)
+├── README.md
+├── LICENSE
+├── references/
+│   ├── evaluation-rubrics.md    # Rubrics per task type
+│   ├── scoring-methodology.md   # Weighting, anchors, aggregation
+│   └── judge-guidelines.md      # Evaluator behavior rules
+├── examples/
+│   ├── basic-evaluation.md
+│   ├── pairwise-comparison.md
+│   └── custom-rubric.md
+└── tests/
+    ├── test-cases.md            # 10 scenarios with concrete inputs
+    └── expected-behavior.md
+```
 
 ## Design principles
 
@@ -105,20 +83,31 @@ Future enhancements can include pairwise comparison, repeated-run stability anal
 - explicit scoring anchors
 - auditable evidence
 - transparent uncertainty
-- no claim of objective ground truth for subjective evaluator decisions
+- deterministic checks kept separate from judged criteria
+- no claim of objective ground truth
 
-## Risks and limitations
+## Testing
 
-PromptScore is useful, but it is not a replacement for human review or deterministic validation in high-stakes tasks. LLM-based grading can be biased, unstable, or poorly aligned if the rubric is vague. The skill should therefore encourage clear criteria, explicit anchors, and honest uncertainty reporting.
+[tests/test-cases.md](tests/test-cases.md) defines ten scenarios (basic, close, custom rubric, instruction following, code, hallucination, structured output, ambiguous rubric, tie, stability), each with concrete inputs and the expected behavior. [tests/expected-behavior.md](tests/expected-behavior.md) lists the acceptance checks.
 
-## Metadata
+## Limitations
 
-- **Category:** AI / Evaluation / Developer Tools
-- **Tags:** prompt-engineering, evaluation, llm, ai-engineering, benchmarking, testing, prompt-optimization, llm-evaluation
+prompt-score is not a replacement for human review or deterministic validation in high-stakes tasks. LLM-based grading can be biased, unstable, or poorly aligned if the rubric is vague, and a single judge should not be treated as ground truth. Repeated-run stability analysis is manual: the skill flags instability when you supply multiple runs, but it does not execute repeated runs itself.
+
+## Roadmap
+
+- Automated test-set evaluation across many examples
+- Pass/fail assertions for structured outputs
+- Prompt optimization loop: evaluate, diagnose, improve, retest
 
 ## Contributing
 
-Issues and pull requests are welcome — especially new rubrics, examples, and test cases.
+Issues and pull requests are welcome, especially new rubrics, examples, and test cases.
+
+## Metadata
+
+- **Category:** AI/ML Development
+- **Tags:** prompt-engineering, evaluation, llm, ai-engineering, benchmarking, testing, prompt-optimization, llm-evaluation
 
 ## License
 

@@ -1,6 +1,6 @@
 # Scoring methodology
 
-PromptScore should favor transparency and repeatability over pseudo-precision.
+prompt-score should favor transparency and repeatability over pseudo-precision.
 
 ## Core score model
 

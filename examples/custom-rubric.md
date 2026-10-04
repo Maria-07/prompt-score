@@ -19,12 +19,14 @@ Write a Python function that validates a list of emails and returns only the val
 ## Candidate summary
 
 ```text
-Candidate X — 8.9/10
+Candidate X — 8.8/10
 - Correctness: 9/10 — the function correctly filters valid emails by a reasonable regex.
 - Requirement coverage: 9/10 — includes the validation and filtering behavior expected by the task.
 - Security: 8/10 — avoids obvious issues but does not explicitly handle edge cases like malformed input types.
 - Readability: 9/10 — clear and easy to follow.
 - Error handling: 8/10 — handles empty inputs but could be more defensive.
+
+Arithmetic check: 0.35×9 + 0.25×9 + 0.15×8 + 0.15×9 + 0.10×8 = 8.75, rounded to 8.8.
 
 Winner: Candidate X
 Reason: It meets the core behavior and remains readable, even though it could be more robust around edge cases.
