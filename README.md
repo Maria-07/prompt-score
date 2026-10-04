@@ -19,7 +19,7 @@ AI engineers often compare multiple prompt versions manually. That leads to inco
 
 - evaluates multiple prompt/response pairs
 - supports built-in or custom evaluation criteria
-- scores on a 1-10 or 0-100 scale
+- scores on a 0-10 or 0-100 scale
 - applies weighted criteria
 - provides criterion-level explanations with evidence
 - ranks candidates and identifies a winner
@@ -51,7 +51,7 @@ Candidates:
 - Prompt B -> Response B
 - Prompt C -> Response C
 Rubric: Accuracy, Relevance, Instruction following, Clarity, Tone
-Scale: 1-10
+Scale: 0-10
 Weights: Accuracy 25%, Relevance 20%, Instruction following 20%, Clarity 15%, Tone 20%
 ```
 

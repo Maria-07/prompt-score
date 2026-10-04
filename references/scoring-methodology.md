@@ -6,7 +6,7 @@ prompt-score should favor transparency and repeatability over pseudo-precision.
 
 Use a normalized score between 0 and 10 or 0 and 100.
 
-- 1-10 is easier for human review and comparison
+- 0-10 is easier for human review and comparison
 - 0-100 can be useful when the rubric is weighted heavily or the audience expects percentages
 - Weighted overall score = sum of criterion scores × weights
 
@@ -28,7 +28,7 @@ Conciseness: 10%
 
 ## Score interpretation
 
-### 1-10 scale
+### 0-10 scale
 
 - 0-2: unacceptable or major failure
 - 3-4: weak or materially incomplete

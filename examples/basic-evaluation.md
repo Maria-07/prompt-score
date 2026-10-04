@@ -26,7 +26,7 @@ Generate a professional product description for a smartwatch with a 7-day batter
 
 ```text
 Goal: Generate a professional product description for a smartwatch.
-Scale: 1-10
+Scale: 0-10
 Rubric: Accuracy 25%, Relevance 20%, Instruction following 20%, Clarity 15%, Tone 20%
 
 Candidate B — 9.2/10 (Winner)
