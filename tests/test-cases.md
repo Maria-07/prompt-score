@@ -2,7 +2,7 @@
 
 Each case gives concrete inputs and the behavior the skill must show. Run them by pasting the input into an agent with the skill loaded and checking the output against "Expected".
 
-Shared setup unless stated otherwise: Scale 1-10, general rubric (Accuracy 30%, Relevance 25%, Instruction following 25%, Clarity 20%).
+Shared setup unless stated otherwise: Scale 0-10, general rubric (Accuracy 30%, Relevance 25%, Instruction following 25%, Clarity 20%).
 
 ## 1. Basic: obvious quality differences
 
