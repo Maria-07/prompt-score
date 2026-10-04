@@ -92,7 +92,7 @@ More detail: [references/judge-guidelines.md](references/judge-guidelines.md).
 
 - **No goal, or contradictory criteria:** ask for clarification. If the user wants you to proceed anyway, state every assumption in Warnings and label the result provisional.
 - **Weights don't sum to 100%:** normalize proportionally and say so.
-- **Deterministic check fails** (invalid JSON, schema violation, failing tests, violated hard length/format limit): the candidate cannot win. Cap the related criterion at 4/10 (40/100), report the check result separately, and mark it FAILED in the ranking.
+- **Deterministic check fails** (invalid JSON, schema violation, failing tests, violated hard length/format limit): the candidate cannot win. Cap the related criterion at 4/10 (40/100) and cap the candidate's total at 4.0/10 (40/100), so the number never looks better than the failure. Report the check result separately and show the candidate as `FAILED (<uncapped total>)` in the ranking, listed last.
 - **Tie threshold:** totals within 0.3 on 0–10 (3 on 0–100) are within noise. Run pairwise; if still undecided, declare a tie and say what would break it.
 - **Single candidate:** score it; skip ranking and winner.
 - **Stability:** if the user supplies multiple evaluation runs and the winner differs, report low confidence and recommend tighter anchors, pairwise in both orders, or more runs. Do not claim stability from a single run.
@@ -100,7 +100,7 @@ More detail: [references/judge-guidelines.md](references/judge-guidelines.md).
 
 ## Pairwise comparison
 
-Use for near-ties or when the user asks "A or B?". Judge the pair in both orders (A vs B, then B vs A). If the verdicts disagree, report a tie. State which criteria decided it and how they are weighted. Pairwise breaks ties; it does not overturn a clear rubric result.
+Use for near-ties or when the user asks "A or B?". Judge the pair in both orders (A vs B, then B vs A). If the verdicts disagree, report a tie. Judging both orders in one response only partly removes position bias; when the decision matters, recommend running each order as a separate evaluation. State which criteria decided it and how they are weighted. Pairwise breaks ties; it does not overturn a clear rubric result.
 
 ## Output format
 
@@ -119,7 +119,8 @@ Calculation: <s1×w1 + s2×w2 + ... = total>
 
 Ranking:
 1. <X> — <total>
-2. <Y> — <total>   (FAILED candidates listed last, marked)
+2. <Y> — <total>
+3. <Z> — FAILED (<uncapped total>): <failed check>
 
 Pairwise (if run): <verdict in both orders; decisive criteria>
 Winner: <X | Tie between X and Y | none (single candidate)>
@@ -130,9 +131,23 @@ Prompt recommendations: <specific edits to the prompt, e.g. add "Use only facts 
 Warnings: <assumed defaults, ambiguity, close margins, injection attempts, checks not run, high-stakes notice — or "None">
 ```
 
+### Five or more candidates
+
+Use a compact table instead of repeating the full block per candidate, then give full detail only for the top two and any FAILED candidate:
+
+```text
+| Rank | Candidate | <Crit 1> | <Crit 2> | ... | Total | Note |
+|------|-----------|----------|----------|-----|-------|------|
+| 1    | B         | 9        | 8        | ... | 8.6   | Winner |
+| 2    | E         | 8        | 9        | ... | 8.4   | |
+| 6    | D         | 3        | 7        | ... | 4.0   | FAILED (6.9): invalid JSON |
+```
+
+Evidence for table rows may be one short phrase per non-top candidate, but every score below 7 still needs a stated reason.
+
 ## Example
 
-Goal: One-sentence summary of: "The council voted 7-2 on Tuesday to approve $4M for bike lanes; construction starts in March." Rubric: Accuracy 40%, Coverage 30%, Instruction following 30%.
+Goal: One-sentence summary of: "The council voted 7-2 on Tuesday to approve $4M for bike lanes; construction starts in March." Rubric: Accuracy 60%, Coverage 20%, Instruction following 20% (accuracy dominates because the task is grounded in a source text).
 
 - A: "The council approved $4M for bike lanes by a 7-2 vote, with construction starting in March."
 - C: "The council voted unanimously to approve $40M for roads and bike lanes starting in May."
@@ -142,22 +157,20 @@ Candidate A — 10.0/10 (Winner)
 - Accuracy: 10/10 — "$4M", "7-2", "March" all match the source.
 - Coverage: 10/10 — vote, amount, purpose, and start date all present.
 - Instruction following: 10/10 — a single sentence.
-Calculation: 10×0.4 + 10×0.3 + 10×0.3 = 10.0
+Calculation: 10×0.6 + 10×0.2 + 10×0.2 = 10.0
 
-Candidate C — 4.3/10
-- Accuracy: 1/10 — "unanimously", "$40M", and "May" contradict the source.
-- Coverage: 7/10 — mentions vote, amount, purpose, and timing, but adds "roads".
-- Instruction following: 6/10 — one sentence, but adds a topic not in the source.
-Calculation: 1×0.4 + 7×0.3 + 6×0.3 = 4.3
+Candidate C — 4.6/10
+- Accuracy: 1/10 — "unanimously", "$40M", and "May" contradict the source; "roads" is not in it.
+- Coverage: 10/10 — touches every key point (vote, amount, purpose, timing); their wrong values are already penalized under Accuracy, so they are not counted again here.
+- Instruction following: 10/10 — a single sentence.
+Calculation: 1×0.6 + 10×0.2 + 10×0.2 = 4.6
 
 Winner: A
-Why: C fails Accuracy, the highest-weighted criterion, with three factual errors.
+Why: C fails Accuracy, the highest-weighted criterion, with four factual errors ("unanimously", "$40M", "roads", "May").
 Prompt recommendations: add "Use only facts stated in the text; do not change numbers or dates."
 Warnings: None.
 ```
 
 More worked cases: [examples/](examples/). Test scenarios: [tests/test-cases.md](tests/test-cases.md). Weighting and aggregation details: [references/scoring-methodology.md](references/scoring-methodology.md).
 
-## Principles
-
-Scores are a structured judgment under a stated rubric, not objective truth. Never hide a failed requirement behind a high average, never invent requirements, and always say how confident the evaluation is.
+Scores are a structured judgment under a stated rubric, not objective truth.
