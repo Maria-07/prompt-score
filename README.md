@@ -42,6 +42,8 @@ git clone https://github.com/Maria-07/prompt-score.git .claude/skills/prompt-sco
 
 The skill loads when you ask the agent to compare, score, or rank prompt/response pairs.
 
+prompt-score is plain markdown with no scripts or dependencies, so it works with any agent that supports the SKILL.md format (Claude Code, Claude.ai, the Claude Agent SDK, and other Agent Skills–compatible tools). For other agents, copy the folder into that agent's skills directory.
+
 ## Quick usage
 
 ```text
